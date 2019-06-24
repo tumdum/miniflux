@@ -7,6 +7,7 @@ package logger // import "miniflux.app/logger"
 import (
 	"fmt"
 	"os"
+	"runtime"
 	"time"
 )
 
@@ -88,10 +89,16 @@ func Fatal(format string, v ...interface{}) {
 func formatMessage(level LogLevel, format string, v ...interface{}) {
 	var prefix string
 
+	_, file, line, ok := runtime.Caller(2)
+	if !ok {
+		file = "unknown"
+		line = 0
+	}
+
 	if displayDateTime {
-		prefix = fmt.Sprintf("[%s] [%s] ", time.Now().Format("2006-01-02T15:04:05"), level)
+		prefix = fmt.Sprintf("[%s] [%s] %v:%v ", time.Now().Format("2006-01-02T15:04:05"), level, file, line)
 	} else {
-		prefix = fmt.Sprintf("[%s] ", level)
+		prefix = fmt.Sprintf("[%s] %v:%v ", level, file, line)
 	}
 
 	fmt.Fprintf(os.Stderr, prefix+format+"\n", v...)
