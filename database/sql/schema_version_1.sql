@@ -18,7 +18,7 @@ create table sessions (
     id serial not null,
     user_id int not null,
     token text not null unique,
-    created_at timestamp with time zone default now(),
+    created_at timestamp default CURRENT_TIMESTAMP,
     user_agent text,
     ip text,
     primary key (id),
@@ -26,6 +26,7 @@ create table sessions (
     foreign key (user_id) references users(id) on delete cascade
 );
 
+/*
 create table categories (
     id serial not null,
     user_id int not null,
@@ -35,14 +36,15 @@ create table categories (
     foreign key (user_id) references users(id) on delete cascade
 );
 
+*/
 create table feeds (
-    id bigserial not null,
+    id integer not null,
     user_id int not null,
     category_id int not null,
     title text not null,
     feed_url text not null,
     site_url text not null,
-    checked_at timestamp with time zone default now(),
+    checked_at timestamp default CURRENT_TIMESTAMP,
     etag_header text default '',
     last_modified_header text default '',
     parsing_error_msg text default '',
@@ -52,8 +54,10 @@ create table feeds (
     foreign key (user_id) references users(id) on delete cascade,
     foreign key (category_id) references categories(id) on delete cascade
 );
+/*
 
 create type entry_status as enum('unread', 'read', 'removed');
+*/
 
 create table entries (
     id bigserial not null,
@@ -71,9 +75,10 @@ create table entries (
     foreign key (user_id) references users(id) on delete cascade,
     foreign key (feed_id) references feeds(id) on delete cascade
 );
+/*
 
 create index entries_feed_idx on entries using btree(feed_id);
-
+*/
 create table enclosures (
     id bigserial not null,
     user_id int not null,
@@ -86,6 +91,7 @@ create table enclosures (
     foreign key (entry_id) references entries(id) on delete cascade
 );
 
+/*
 create table icons (
     id bigserial not null,
     hash text not null unique,
@@ -101,3 +107,4 @@ create table feed_icons (
     foreign key (feed_id) references feeds(id) on delete cascade,
     foreign key (icon_id) references icons(id) on delete cascade
 );
+*/

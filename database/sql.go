@@ -23,7 +23,7 @@ create table sessions (
     id serial not null,
     user_id int not null,
     token text not null unique,
-    created_at timestamp with time zone default now(),
+    created_at timestamp default CURRENT_TIMESTAMP,
     user_agent text,
     ip text,
     primary key (id),
@@ -31,6 +31,7 @@ create table sessions (
     foreign key (user_id) references users(id) on delete cascade
 );
 
+/*
 create table categories (
     id serial not null,
     user_id int not null,
@@ -40,14 +41,15 @@ create table categories (
     foreign key (user_id) references users(id) on delete cascade
 );
 
+*/
 create table feeds (
-    id bigserial not null,
+    id integer not null,
     user_id int not null,
     category_id int not null,
     title text not null,
     feed_url text not null,
     site_url text not null,
-    checked_at timestamp with time zone default now(),
+    checked_at timestamp default CURRENT_TIMESTAMP,
     etag_header text default '',
     last_modified_header text default '',
     parsing_error_msg text default '',
@@ -57,8 +59,10 @@ create table feeds (
     foreign key (user_id) references users(id) on delete cascade,
     foreign key (category_id) references categories(id) on delete cascade
 );
+/*
 
 create type entry_status as enum('unread', 'read', 'removed');
+*/
 
 create table entries (
     id bigserial not null,
@@ -76,9 +80,10 @@ create table entries (
     foreign key (user_id) references users(id) on delete cascade,
     foreign key (feed_id) references feeds(id) on delete cascade
 );
+/*
 
 create index entries_feed_idx on entries using btree(feed_id);
-
+*/
 create table enclosures (
     id bigserial not null,
     user_id int not null,
@@ -91,6 +96,7 @@ create table enclosures (
     foreign key (entry_id) references entries(id) on delete cascade
 );
 
+/*
 create table icons (
     id bigserial not null,
     hash text not null unique,
@@ -106,15 +112,17 @@ create table feed_icons (
     foreign key (feed_id) references feeds(id) on delete cascade,
     foreign key (icon_id) references icons(id) on delete cascade
 );
+*/
 `,
 	"schema_version_10": `drop table tokens;
 
 create table sessions (
     id text not null,
     data jsonb not null,
-    created_at timestamp with time zone not null default now(),
+    created_at timestamp default CURRENT_TIMESTAMP,
     primary key(id)
-);`,
+);
+`,
 	"schema_version_11": `alter table integrations add column wallabag_enabled bool default 'f';
 alter table integrations add column wallabag_url text default '';
 alter table integrations add column wallabag_client_id text default '';
@@ -128,33 +136,40 @@ create index feeds_user_category_idx on feeds(user_id, category_id);
 	"schema_version_14": `alter table integrations add column nunux_keeper_enabled bool default 'f';
 alter table integrations add column nunux_keeper_url text default '';
 alter table integrations add column nunux_keeper_api_key text default '';`,
-	"schema_version_15": `alter table enclosures alter column size set data type bigint;`,
+	"schema_version_15": `-- alter table enclosures alter column size set data type bigint;
+`,
 	"schema_version_16": `alter table entries add column comments_url text default '';`,
 	"schema_version_17": `alter table integrations add column pocket_enabled bool default 'f';
 alter table integrations add column pocket_access_token text default '';
 alter table integrations add column pocket_consumer_key text default '';
 `,
-	"schema_version_18": `alter table user_sessions alter column ip set data type inet using ip::inet;`,
+	"schema_version_18": `-- alter table user_sessions alter column ip set data type inet using ip::inet;
+`,
 	"schema_version_19": `alter table feeds add column username text default '';
 alter table feeds add column password text default '';`,
-	"schema_version_2": `create extension if not exists hstore;
+	"schema_version_2": `-- create extension if not exists hstore;
 alter table users add column extra hstore;
-create index users_extra_idx on users using gin(extra);
+create index users_extra_idx on users (extra);
+-- create index users_extra_idx on users using gin(extra);
 `,
-	"schema_version_20": `alter table entries add column document_vectors tsvector;
-update entries set document_vectors = to_tsvector(substring(title || ' ' || coalesce(content, '') for 1000000));
-create index document_vectors_idx on entries using gin(document_vectors);`,
+	"schema_version_20": `-- alter table entries add column document_vectors tsvector;
+-- update entries set document_vectors = to_tsvector(substring(title || ' ' || coalesce(content, '') for 1000000));
+-- create index document_vectors_idx on entries using gin(document_vectors);
+`,
 	"schema_version_21": `alter table feeds add column user_agent text default '';`,
-	"schema_version_22": `update entries set document_vectors = setweight(to_tsvector(substring(coalesce(title, '') for 1000000)), 'A') || setweight(to_tsvector(substring(coalesce(content, '') for 1000000)), 'B');`,
+	"schema_version_22": `-- update entries set document_vectors = setweight(to_tsvector(substring(coalesce(title, '') for 1000000)), 'A') || setweight(to_tsvector(substring(coalesce(content, '') for 1000000)), 'B');
+`,
 	"schema_version_23": `alter table users add column keyboard_shortcuts boolean default 't';`,
 	"schema_version_3": `create table tokens (
     id text not null,
     value text not null,
-    created_at timestamp with time zone not null default now(),
+    -- created_at timestamp with time zone not null default now(),
+    created_at timestamp DEFAULT CURRENT_TIMESTAMP,
     primary key(id, value)
-);`,
-	"schema_version_4": `create type entry_sorting_direction as enum('asc', 'desc');
-alter table users add column entry_direction entry_sorting_direction default 'asc';
+);
+`,
+	"schema_version_4": `-- create type entry_sorting_direction as enum('asc', 'desc');
+alter table users add column entry_direction text default 'asc';
 `,
 	"schema_version_5": `create table integrations (
     user_id int not null,
@@ -182,24 +197,24 @@ alter table users add column entry_direction entry_sorting_direction default 'as
 }
 
 var SqlMapChecksums = map[string]string{
-	"schema_version_1":  "00b2fa9e945565625c93ef9d4242a8b6583dc3cd7edf38d2fc95c0f3f7b926ae",
-	"schema_version_10": "8faf15ddeff7c8cc305e66218face11ed92b97df2bdc2d0d7944d61441656795",
+	"schema_version_1":  "4b12b39132b6d7e9bf8a676a7a10c71d1956ac1cecda31f085225361a30c6c9b",
+	"schema_version_10": "7243abda43c62e5b4969002f98ff515b80ab8a03841e4fba929d839e9883d3c4",
 	"schema_version_11": "dc5bbc302e01e425b49c48ddcd8e29e3ab2bb8e73a6cd1858a6ba9fbec0b5243",
 	"schema_version_12": "a95abab6cdf64811fc744abd37457e2928939d999c5ef00d2bdd9398e16f32fb",
 	"schema_version_13": "9073fae1e796936f4a43a8120ebdb4218442fe7d346ace6387556a357c2d7edf",
 	"schema_version_14": "4622e42c4a5a88b6fe1e61f3d367b295968f7260ab5b96481760775ba9f9e1fe",
-	"schema_version_15": "13ff91462bdf4cda5a94a4c7a09f757761b0f2c32b4be713ba4786a4837750e4",
+	"schema_version_15": "3bc23b926344bbaee4092e2b2439046c7316c88dda16b39137c6128ca5d410d7",
 	"schema_version_16": "9d006faca62fd7ab787f64aef0e0a5933d142466ec4cab0e096bb920d2797e34",
 	"schema_version_17": "b9f15d6217275fedcf6d948dd85ebe978b869bf37f42a86fd5b50a51919fa0e1",
-	"schema_version_18": "c0ec24847612c7f2dc326cf735baffba79391a56aedd73292371a39f38724a71",
+	"schema_version_18": "a7a37a134a270c701aa4c01ae4b01b8a330ca8d9b5802633160aa0e0a2423f66",
 	"schema_version_19": "a83f77b41cc213d282805a5b518f15abbf96331599119f0ef4aca4be037add7b",
-	"schema_version_2":  "e8e9ff32478df04fcddad10a34cba2e8bb1e67e7977b5bd6cdc4c31ec94282b4",
-	"schema_version_20": "5d414c0cfc0da2863c641079afa58b7ff42dccb0f0e01c822ad435c3e3aa9201",
+	"schema_version_2":  "6b5298cb2de365299cf0ac7a322f55fa77be2c129808c75c0b0480f058b33268",
+	"schema_version_20": "5f54faad4f788c681000db2c539700b1ce27b603b76189fd22ffcb21af144896",
 	"schema_version_21": "77da01ee38918ff4fe33985fbb20ed3276a717a7584c2ca9ebcf4d4ab6cb6910",
-	"schema_version_22": "51ed5fbcae9877e57274511f0ef8c61d254ebd78dfbcbc043a2acd30f4c93ca3",
+	"schema_version_22": "382f5a277bd3940322baa0398bbbb70f948b19cc77a007aa40297d58c8dc452b",
 	"schema_version_23": "cb3512d328436447f114e305048c0daa8af7505cfe5eab02778b0de1156081b2",
-	"schema_version_3":  "a54745dbc1c51c000f74d4e5068f1e2f43e83309f023415b1749a47d5c1e0f12",
-	"schema_version_4":  "216ea3a7d3e1704e40c797b5dc47456517c27dbb6ca98bf88812f4f63d74b5d9",
+	"schema_version_3":  "3f3cfe7f66488bf175fa9be8ab52a1f67c998de5c468943633d56f1d5a499b4e",
+	"schema_version_4":  "8a5e42e2c54d46ab32f34a5ddcda55c3a145612071889f2e8c3843482c74e1c7",
 	"schema_version_5":  "46397e2f5f2c82116786127e9f6a403e975b14d2ca7b652a48cd1ba843e6a27c",
 	"schema_version_6":  "9d05b4fb223f0e60efc716add5048b0ca9c37511cf2041721e20505d6d798ce4",
 	"schema_version_7":  "33f298c9aa30d6de3ca28e1270df51c2884d7596f1283a75716e2aeb634cd05c",

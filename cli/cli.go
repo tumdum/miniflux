@@ -111,7 +111,9 @@ func Parse() {
 	defer db.Close()
 
 	if flagMigrate {
-		database.Migrate(db)
+		if err := database.Migrate(db); err != nil {
+			logger.Fatal("[Migrate] %v", err)
+		}
 		return
 	}
 
@@ -139,7 +141,9 @@ func Parse() {
 
 	// Run migrations and start the deamon.
 	if config.Opts.RunMigrations() {
-		database.Migrate(db)
+		if err := database.Migrate(db); err != nil {
+			logger.Fatal("[Migrate] %v", err)
+		}
 	}
 
 	// Create admin user and start the deamon.

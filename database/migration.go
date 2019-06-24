@@ -8,14 +8,12 @@ import (
 	"database/sql"
 	"fmt"
 	"strconv"
-
-	"miniflux.app/logger"
 )
 
 const schemaVersion = 23
 
 // Migrate executes database migrations.
-func Migrate(db *sql.DB) {
+func Migrate(db *sql.DB) error {
 	var currentVersion int
 	db.QueryRow(`select version from schema_version`).Scan(&currentVersion)
 
@@ -27,7 +25,7 @@ func Migrate(db *sql.DB) {
 
 		tx, err := db.Begin()
 		if err != nil {
-			logger.Fatal("[Migrate] %v", err)
+			return err
 		}
 
 		rawSQL := SqlMap["schema_version_"+strconv.Itoa(version)]
@@ -35,21 +33,22 @@ func Migrate(db *sql.DB) {
 		_, err = tx.Exec(rawSQL)
 		if err != nil {
 			tx.Rollback()
-			logger.Fatal("[Migrate] %v", err)
+			return err
 		}
 
 		if _, err := tx.Exec(`delete from schema_version`); err != nil {
 			tx.Rollback()
-			logger.Fatal("[Migrate] %v", err)
+			return err
 		}
 
 		if _, err := tx.Exec(`insert into schema_version (version) values($1)`, version); err != nil {
 			tx.Rollback()
-			logger.Fatal("[Migrate] %v", err)
+			return err
 		}
 
 		if err := tx.Commit(); err != nil {
-			logger.Fatal("[Migrate] %v", err)
+			return err
 		}
 	}
+	return nil
 }
