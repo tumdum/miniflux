@@ -8,15 +8,14 @@ var SqlMap = map[string]string{
 );
 
 create table users (
-    id serial not null,
+    id INTEGER PRIMARY KEY,
     username text not null unique,
     password text,
     is_admin bool default 'f',
     language text default 'en_US',
     timezone text default 'UTC',
     theme text default 'default',
-    last_login_at timestamp with time zone,
-    primary key (id)
+    last_login_at timestamp with time zone
 );
 
 create table sessions (
@@ -31,17 +30,14 @@ create table sessions (
     foreign key (user_id) references users(id) on delete cascade
 );
 
-/*
 create table categories (
-    id serial not null,
+    id serial PRIMARY KEY,
     user_id int not null,
     title text not null,
-    primary key (id),
     unique (user_id, title),
     foreign key (user_id) references users(id) on delete cascade
 );
 
-*/
 create table feeds (
     id integer not null,
     user_id int not null,
@@ -197,7 +193,7 @@ alter table users add column entry_direction text default 'asc';
 }
 
 var SqlMapChecksums = map[string]string{
-	"schema_version_1":  "4b12b39132b6d7e9bf8a676a7a10c71d1956ac1cecda31f085225361a30c6c9b",
+	"schema_version_1":  "9372e58dbbc9e968e9832f2fb54a33d9b109784feda26ca5b73549f51d6555af",
 	"schema_version_10": "7243abda43c62e5b4969002f98ff515b80ab8a03841e4fba929d839e9883d3c4",
 	"schema_version_11": "dc5bbc302e01e425b49c48ddcd8e29e3ab2bb8e73a6cd1858a6ba9fbec0b5243",
 	"schema_version_12": "a95abab6cdf64811fc744abd37457e2928939d999c5ef00d2bdd9398e16f32fb",

@@ -17,3 +17,7 @@ type Storage struct {
 func NewStorage(db *sql.DB) *Storage {
 	return &Storage{db}
 }
+
+func (s *Storage) Close() {
+	s.db.Close()
+}

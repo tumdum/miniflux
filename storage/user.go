@@ -64,11 +64,19 @@ func (s *Storage) CreateUser(user *model.User) (err error) {
 			(username, password, is_admin, extra)
 		VALUES
 			(LOWER($1), $2, $3, $4)
-		RETURNING
-			id, username, is_admin, language, theme, timezone, entry_direction, keyboard_shortcuts
+		-- RETURNING
+		--	id, username, is_admin, language, theme, timezone, entry_direction, keyboard_shortcuts
 	`
 
-	err = s.db.QueryRow(query, user.Username, password, user.IsAdmin, extra).Scan(
+	res, err := s.db.Exec(query, user.Username, password, user.IsAdmin, extra)
+	if err != nil {
+		return fmt.Errorf("unable to create user: %v", err)
+	}
+	id, err := res.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("unable to get user ID: %v", err)
+	}
+	err = s.db.QueryRow("SELECT id, username, is_admin, language, theme, timezone, entry_direction, keyboard_shortcuts FROM users WHERE id=$1", id).Scan(
 		&user.ID,
 		&user.Username,
 		&user.IsAdmin,
@@ -79,11 +87,15 @@ func (s *Storage) CreateUser(user *model.User) (err error) {
 		&user.KeyboardShortcuts,
 	)
 	if err != nil {
-		return fmt.Errorf("unable to create user: %v", err)
+		return fmt.Errorf("unable to get user: %v", err)
 	}
 
-	s.CreateCategory(&model.Category{Title: "All", UserID: user.ID})
-	s.CreateIntegration(user.ID)
+	if err := s.CreateCategory(&model.Category{Title: "All", UserID: user.ID}); err != nil {
+		return fmt.Errorf("creating new users '%v' category failed: %v", user.Username, err)
+	}
+	if err := s.CreateIntegration(user.ID); err != nil {
+		return fmt.Errorf("creating intergration for new user '%v' failed: %v", user.Username, err)
+	}
 	return nil
 }
 

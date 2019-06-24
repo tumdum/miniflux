@@ -129,18 +129,19 @@ func (s *Storage) CreateCategory(category *model.Category) error {
 		(user_id, title)
 		VALUES
 		($1, $2)
-		RETURNING id
 	`
-	err := s.db.QueryRow(
-		query,
-		category.UserID,
-		category.Title,
-	).Scan(&category.ID)
+	res, err := s.db.Exec(query, category.UserID, category.Title)
 
 	if err != nil {
 		return fmt.Errorf("Unable to create category: %v", err)
 	}
 
+	id, err := res.LastInsertId()
+	if err != nil {
+		return fmt.Errorf("Unable to get category id: %v", err)
+	}
+
+	category.ID = id
 	return nil
 }
 

@@ -3,15 +3,14 @@ create table schema_version (
 );
 
 create table users (
-    id serial not null,
+    id INTEGER PRIMARY KEY,
     username text not null unique,
     password text,
     is_admin bool default 'f',
     language text default 'en_US',
     timezone text default 'UTC',
     theme text default 'default',
-    last_login_at timestamp with time zone,
-    primary key (id)
+    last_login_at timestamp with time zone
 );
 
 create table sessions (
@@ -26,17 +25,14 @@ create table sessions (
     foreign key (user_id) references users(id) on delete cascade
 );
 
-/*
 create table categories (
-    id serial not null,
+    id serial PRIMARY KEY,
     user_id int not null,
     title text not null,
-    primary key (id),
     unique (user_id, title),
     foreign key (user_id) references users(id) on delete cascade
 );
 
-*/
 create table feeds (
     id integer not null,
     user_id int not null,
