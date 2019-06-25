@@ -76,3 +76,21 @@ func TestAfterCreatingManyUsersTheyAllExists(t *testing.T) {
 		t.Fatalf("Expected %d unique ids, got %v", len(userNames), ids)
 	}
 }
+
+func TestRemovingExistingUser(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	if err := storage.CreateUser(&user); err != nil {
+		t.Fatalf("Failed to create valid user: %v", err)
+	}
+	if err := storage.RemoveUser(user.ID); err != nil {
+		t.Fatalf("Failed to remove valid user: %v", err)
+	}
+	if storage.UserExists(testUser) {
+		t.Fatalf("User '%v' shouldn't exist", testUser)
+	}
+}

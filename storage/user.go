@@ -63,10 +63,7 @@ func (s *Storage) CreateUser(user *model.User) (err error) {
 		INSERT INTO users
 			(username, password, is_admin, extra)
 		VALUES
-			(LOWER($1), $2, $3, $4)
-		-- RETURNING
-		--	id, username, is_admin, language, theme, timezone, entry_direction, keyboard_shortcuts
-	`
+			(LOWER($1), $2, $3, $4)`
 
 	res, err := s.db.Exec(query, user.Username, password, user.IsAdmin, extra)
 	if err != nil {
@@ -100,6 +97,7 @@ func (s *Storage) CreateUser(user *model.User) (err error) {
 }
 
 // UpdateExtraField updates an extra field of the given user.
+// NOT TESTED
 func (s *Storage) UpdateExtraField(userID int64, field, value string) error {
 	query := fmt.Sprintf(`UPDATE users SET extra = hstore('%s', $1) WHERE id=$2`, field)
 	_, err := s.db.Exec(query, value, userID)
@@ -110,6 +108,7 @@ func (s *Storage) UpdateExtraField(userID int64, field, value string) error {
 }
 
 // RemoveExtraField deletes an extra field for the given user.
+// NOT TESTED
 func (s *Storage) RemoveExtraField(userID int64, field string) error {
 	query := `UPDATE users SET extra = delete(extra, $1) WHERE id=$2`
 	_, err := s.db.Exec(query, field, userID)
@@ -120,6 +119,7 @@ func (s *Storage) RemoveExtraField(userID int64, field string) error {
 }
 
 // UpdateUser updates a user.
+// NOT TESTED
 func (s *Storage) UpdateUser(user *model.User) error {
 	if user.Password != "" {
 		hashedPassword, err := hashPassword(user.Password)
@@ -191,6 +191,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
 }
 
 // UserLanguage returns the language of the given user.
+// NOT TESTED
 func (s *Storage) UserLanguage(userID int64) (language string) {
 	err := s.db.QueryRow(`SELECT language FROM users WHERE id = $1`, userID).Scan(&language)
 	if err != nil {
@@ -201,6 +202,7 @@ func (s *Storage) UserLanguage(userID int64) (language string) {
 }
 
 // UserByID finds a user by the ID.
+// NOT TESTED
 func (s *Storage) UserByID(userID int64) (*model.User, error) {
 	query := `
 		SELECT
@@ -216,6 +218,7 @@ func (s *Storage) UserByID(userID int64) (*model.User, error) {
 }
 
 // UserByUsername finds a user by the username.
+// NOT TESTED
 func (s *Storage) UserByUsername(username string) (*model.User, error) {
 	query := `
 		SELECT
@@ -231,6 +234,7 @@ func (s *Storage) UserByUsername(username string) (*model.User, error) {
 }
 
 // UserByExtraField finds a user by an extra field value.
+// NOT TESTED
 func (s *Storage) UserByExtraField(field, value string) (*model.User, error) {
 	query := `
 		SELECT
@@ -245,6 +249,7 @@ func (s *Storage) UserByExtraField(field, value string) (*model.User, error) {
 	return s.fetchUser(query, field, value)
 }
 
+// NOT TESTED
 func (s *Storage) fetchUser(query string, args ...interface{}) (*model.User, error) {
 	var extra hstore.Hstore
 
@@ -278,6 +283,7 @@ func (s *Storage) fetchUser(query string, args ...interface{}) (*model.User, err
 }
 
 // RemoveUser deletes a user.
+// NOT TESTED
 func (s *Storage) RemoveUser(userID int64) error {
 	result, err := s.db.Exec("DELETE FROM users WHERE id = $1", userID)
 	if err != nil {
@@ -297,6 +303,7 @@ func (s *Storage) RemoveUser(userID int64) error {
 }
 
 // Users returns all users.
+// NOT TESTED
 func (s *Storage) Users() (model.Users, error) {
 	query := `
 		SELECT
@@ -347,6 +354,7 @@ func (s *Storage) Users() (model.Users, error) {
 }
 
 // CheckPassword validate the hashed password.
+// NOT TESTED
 func (s *Storage) CheckPassword(username, password string) error {
 	var hash string
 	username = strings.ToLower(username)
@@ -366,6 +374,7 @@ func (s *Storage) CheckPassword(username, password string) error {
 }
 
 // HasPassword returns true if the given user has a password defined.
+// NOT TESTED
 func (s *Storage) HasPassword(userID int64) (bool, error) {
 	var result bool
 	query := `SELECT true FROM users WHERE id=$1 AND password <> ''`
@@ -383,6 +392,7 @@ func (s *Storage) HasPassword(userID int64) (bool, error) {
 	return false, nil
 }
 
+// NOT TESTED
 func hashPassword(password string) (string, error) {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	return string(bytes), err
