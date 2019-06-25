@@ -6,8 +6,9 @@ package database // import "miniflux.app/database"
 
 import (
 	"database/sql"
-	"fmt"
 	"strconv"
+
+	"miniflux.app/logger"
 )
 
 const schemaVersion = 23
@@ -17,11 +18,11 @@ func Migrate(db *sql.DB) error {
 	var currentVersion int
 	db.QueryRow(`select version from schema_version`).Scan(&currentVersion)
 
-	fmt.Println("Current schema version:", currentVersion)
-	fmt.Println("Latest schema version:", schemaVersion)
+	logger.Debug("Current schema version:", currentVersion)
+	logger.Debug("Latest schema version:", schemaVersion)
 
 	for version := currentVersion + 1; version <= schemaVersion; version++ {
-		fmt.Println("Migrating to version:", version)
+		logger.Debug("Migrating to version: %v", version)
 
 		tx, err := db.Begin()
 		if err != nil {
