@@ -283,7 +283,6 @@ func (s *Storage) fetchUser(query string, args ...interface{}) (*model.User, err
 }
 
 // RemoveUser deletes a user.
-// NOT TESTED
 func (s *Storage) RemoveUser(userID int64) error {
 	result, err := s.db.Exec("DELETE FROM users WHERE id = $1", userID)
 	if err != nil {

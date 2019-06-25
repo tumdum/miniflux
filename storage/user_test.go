@@ -94,3 +94,11 @@ func TestRemovingExistingUser(t *testing.T) {
 		t.Fatalf("User '%v' shouldn't exist", testUser)
 	}
 }
+
+func TestRemovingNotExistingUserFails(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	if err := storage.RemoveUser(1); err == nil {
+		t.Fatalf("Romeving not existing users didn't fail")
+	}
+}
