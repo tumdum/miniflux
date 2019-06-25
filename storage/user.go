@@ -227,7 +227,6 @@ func (s *Storage) UserByID(userID int64) (*model.User, error) {
 // UserByUsername finds a user by the username.
 // NOT TESTED
 func (s *Storage) UserByUsername(username string) (*model.User, error) {
-	panic("Unimplemented")
 	query := `
 		SELECT
 			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts,
@@ -260,7 +259,6 @@ func (s *Storage) UserByExtraField(field, value string) (*model.User, error) {
 
 // NOT TESTED
 func (s *Storage) fetchUser(query string, args ...interface{}) (*model.User, error) {
-	panic("Unimplemented")
 	var extra hstore.Hstore
 
 	user := model.NewUser()
