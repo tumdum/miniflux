@@ -186,3 +186,39 @@ func TestCheckPassword(t *testing.T) {
 		t.Fatalf("Check password didn't return error for incorrect password")
 	}
 }
+
+func TestHasPassword(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	noErr(t, storage.CreateUser(&user))
+	if has, err := storage.HasPassword(user.ID); !has {
+		noErr(t, err)
+		t.Fatalf("User with password doesn't have password")
+	}
+}
+
+func TestHasPasswordReturnsFalseForUserWithouPassword(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+	}
+	noErr(t, storage.CreateUser(&user))
+	if has, err := storage.HasPassword(user.ID); has {
+		noErr(t, err)
+		t.Fatalf("User without password has password")
+	}
+}
+
+func TestHasPasswordForNotExisting(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	if has, err := storage.HasPassword(1); has || err != nil {
+		noErr(t, err)
+		t.Fatalf("Not existing user shouldn't have a password")
+	}
+}

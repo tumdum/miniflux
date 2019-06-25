@@ -376,9 +376,7 @@ func (s *Storage) CheckPassword(username, password string) error {
 }
 
 // HasPassword returns true if the given user has a password defined.
-// NOT TESTED
 func (s *Storage) HasPassword(userID int64) (bool, error) {
-	panic("Unimplemented")
 	var result bool
 	query := `SELECT true FROM users WHERE id=$1 AND password <> ''`
 
@@ -389,10 +387,7 @@ func (s *Storage) HasPassword(userID int64) (bool, error) {
 		return false, fmt.Errorf("unable to execute query: %v", err)
 	}
 
-	if result {
-		return true, nil
-	}
-	return false, nil
+	return result, nil
 }
 
 func hashPassword(password string) (string, error) {
