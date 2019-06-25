@@ -208,9 +208,7 @@ func (s *Storage) UserLanguage(userID int64) (language string) {
 }
 
 // UserByID finds a user by the ID.
-// NOT TESTED
 func (s *Storage) UserByID(userID int64) (*model.User, error) {
-	panic("Unimplemented")
 	query := `
 		SELECT
 			id, username, is_admin, theme, language, timezone, entry_direction, keyboard_shortcuts,
@@ -225,7 +223,6 @@ func (s *Storage) UserByID(userID int64) (*model.User, error) {
 }
 
 // UserByUsername finds a user by the username.
-// NOT TESTED
 func (s *Storage) UserByUsername(username string) (*model.User, error) {
 	query := `
 		SELECT

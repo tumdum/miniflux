@@ -139,7 +139,7 @@ func TestGettingAllUsersShouldReturnThemAll(t *testing.T) {
 	}
 }
 
-func TestUserByUsername(t *testing.T) {
+func TestUserBy(t *testing.T) {
 	storage := MustCreateInMemoryStorage()
 	defer storage.Close()
 	user := model.User{
@@ -147,17 +147,27 @@ func TestUserByUsername(t *testing.T) {
 		Password: testPassword,
 	}
 	noErr(t, storage.CreateUser(&user))
+
 	got, err := storage.UserByUsername(testUser)
+	noErr(t, err)
+	if got.Username != testUser || got.ID != user.ID {
+		t.Fatalf("Expected to get user '%v', got '%v'", testUser, got.Username)
+	}
+	got, err = storage.UserByID(user.ID)
 	noErr(t, err)
 	if got.Username != testUser || got.ID != user.ID {
 		t.Fatalf("Expected to get user '%v', got '%v'", testUser, got.Username)
 	}
 }
 
-func TestUserByUsernameFailsForNotExistingUser(t *testing.T) {
+func TestUserByFailsForNotExistingUser(t *testing.T) {
 	storage := MustCreateInMemoryStorage()
 	defer storage.Close()
 	user, _ := storage.UserByUsername(testUser)
+	if user != nil {
+		t.Fatalf("Got not existing user: %#v", user)
+	}
+	user, _ = storage.UserByID(1)
 	if user != nil {
 		t.Fatalf("Got not existing user: %#v", user)
 	}
