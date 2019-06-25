@@ -2,6 +2,7 @@ package storage
 
 import (
 	"database/sql"
+	"reflect"
 	"testing"
 
 	_ "github.com/mattn/go-sqlite3"
@@ -13,6 +14,13 @@ const (
 	testUser     = "foo"
 	testPassword = "bar"
 )
+
+func noErr(t *testing.T, err error) {
+	t.Helper()
+	if err != nil {
+		t.Fatalf("Unexpected error: %v", err)
+	}
+}
 
 func MustCreateInMemoryStorage() *Storage {
 	db, err := sql.Open("sqlite3", ":memory:")
@@ -61,12 +69,7 @@ func TestAfterCreatingManyUsersTheyAllExists(t *testing.T) {
 			Username: userName,
 			Password: testPassword,
 		}
-		if err := storage.CreateUser(&user); err != nil {
-			t.Fatalf("Failed to create valid user: %v", err)
-		}
-		if user.ID == 0 {
-			t.Fatalf("Failed to assign valid user ID")
-		}
+		noErr(t, storage.CreateUser(&user))
 		ids[user.ID] = struct{}{}
 		if !storage.UserExists(userName) {
 			t.Fatalf("Created user '%v' should exist", userName)
@@ -84,9 +87,7 @@ func TestRemovingExistingUser(t *testing.T) {
 		Username: testUser,
 		Password: testPassword,
 	}
-	if err := storage.CreateUser(&user); err != nil {
-		t.Fatalf("Failed to create valid user: %v", err)
-	}
+	noErr(t, storage.CreateUser(&user))
 	if err := storage.RemoveUser(user.ID); err != nil {
 		t.Fatalf("Failed to remove valid user: %v", err)
 	}
@@ -100,5 +101,40 @@ func TestRemovingNotExistingUserFails(t *testing.T) {
 	defer storage.Close()
 	if err := storage.RemoveUser(1); err == nil {
 		t.Fatalf("Romeving not existing users didn't fail")
+	}
+}
+
+func TestGettingAllUsersFromEmptyStorageShouldReturnEmptySlice(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	if users, err := storage.Users(); len(users) > 0 {
+		noErr(t, err)
+		t.Fatalf("Expected no users, got %v", users)
+	}
+}
+
+func TestGettingAllUsersShouldReturnThemAll(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	expected := map[string]struct{}{
+		"abc": struct{}{},
+		"def": struct{}{},
+		"ghi": struct{}{},
+	}
+	for userName := range expected {
+		user := model.User{
+			Username: userName,
+			Password: testPassword,
+		}
+		noErr(t, storage.CreateUser(&user))
+	}
+	allUsers, err := storage.Users()
+	noErr(t, err)
+	actual := map[string]struct{}{}
+	for _, user := range allUsers {
+		actual[user.Username] = struct{}{}
+	}
+	if !reflect.DeepEqual(expected, actual) {
+		t.Fatalf("Expected '%v', got '%v'", expected, actual)
 	}
 }

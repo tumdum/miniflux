@@ -302,7 +302,6 @@ func (s *Storage) RemoveUser(userID int64) error {
 }
 
 // Users returns all users.
-// NOT TESTED
 func (s *Storage) Users() (model.Users, error) {
 	query := `
 		SELECT
