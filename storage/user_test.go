@@ -46,4 +46,33 @@ func TestAfterCreatingUserItExists(t *testing.T) {
 	if user.ID == 0 {
 		t.Fatalf("Failed to assign valid user ID")
 	}
+	if !storage.UserExists(testUser) {
+		t.Fatalf("Created user '%v' should exist", testUser)
+	}
+}
+
+func TestAfterCreatingManyUsersTheyAllExists(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	userNames := []string{"user1", "user2", "user3"}
+	ids := map[int64]struct{}{}
+	for _, userName := range userNames {
+		user := model.User{
+			Username: userName,
+			Password: testPassword,
+		}
+		if err := storage.CreateUser(&user); err != nil {
+			t.Fatalf("Failed to create valid user: %v", err)
+		}
+		if user.ID == 0 {
+			t.Fatalf("Failed to assign valid user ID")
+		}
+		ids[user.ID] = struct{}{}
+		if !storage.UserExists(userName) {
+			t.Fatalf("Created user '%v' should exist", userName)
+		}
+	}
+	if len(userNames) != len(ids) {
+		t.Fatalf("Expected %d unique ids, got %v", len(userNames), ids)
+	}
 }
