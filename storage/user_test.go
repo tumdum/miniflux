@@ -172,3 +172,17 @@ func TestUserByFailsForNotExistingUser(t *testing.T) {
 		t.Fatalf("Got not existing user: %#v", user)
 	}
 }
+
+func TestCheckPassword(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	noErr(t, storage.CreateUser(&user))
+	noErr(t, storage.CheckPassword(testUser, testPassword))
+	if storage.CheckPassword(testUser, testPassword+"!") == nil {
+		t.Fatalf("Check password didn't return error for incorrect password")
+	}
+}

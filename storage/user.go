@@ -357,9 +357,7 @@ func (s *Storage) Users() (model.Users, error) {
 }
 
 // CheckPassword validate the hashed password.
-// NOT TESTED
 func (s *Storage) CheckPassword(username, password string) error {
-	panic("Unimplemented")
 	var hash string
 	username = strings.ToLower(username)
 
