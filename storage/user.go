@@ -18,8 +18,7 @@ import (
 
 // SetLastLogin updates the last login date of a user.
 func (s *Storage) SetLastLogin(userID int64) error {
-	panic("Unimplemented")
-	query := "UPDATE users SET last_login_at=now() WHERE id=$1"
+	query := "UPDATE users SET last_login_at=CURRENT_TIMESTAMP WHERE id=$1"
 	_, err := s.db.Exec(query, userID)
 	if err != nil {
 		return fmt.Errorf("unable to update last login date: %v", err)
@@ -196,7 +195,6 @@ func (s *Storage) UpdateUser(user *model.User) error {
 }
 
 // UserLanguage returns the language of the given user.
-// NOT TESTED
 func (s *Storage) UserLanguage(userID int64) (language string) {
 	if s.db.QueryRow(`SELECT language FROM users WHERE id = $1`, userID).Scan(&language) != nil {
 		return "en_US"

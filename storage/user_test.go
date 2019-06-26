@@ -319,3 +319,33 @@ func TestUpdateUserThatDoesntExist(t *testing.T) {
 		t.Fatalf("Updating not existing user didn't result in an error")
 	}
 }
+
+func TestSetLastLogin(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	noErr(t, storage.CreateUser(&user))
+	newuser := model.User{
+		ID:                user.ID,
+		Username:          user.Username + "!",
+		Password:          user.Password + "!",
+		IsAdmin:           !user.IsAdmin,
+		Theme:             user.Theme + "!",
+		Language:          user.Language + "!",
+		Timezone:          user.Timezone + "!",
+		EntryDirection:    user.EntryDirection + "!",
+		KeyboardShortcuts: !user.KeyboardShortcuts,
+		LastLoginAt:       nil,
+		Extra:             map[string]string{},
+	}
+	noErr(t, storage.UpdateUser(&newuser))
+	noErr(t, storage.SetLastLogin(user.ID))
+	updated, err := storage.UserByID(user.ID)
+	noErr(t, err)
+	if time.Now().Sub(*updated.LastLoginAt) > time.Minute {
+		t.Fatalf("Unexpected last login at: %v", *updated.LastLoginAt)
+	}
+}

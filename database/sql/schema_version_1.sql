@@ -10,7 +10,7 @@ create table users (
     language text default 'en_US',
     timezone text default 'UTC',
     theme text default 'default',
-    last_login_at timestamp with time zone
+    last_login_at timestamp
 );
 
 create table sessions (

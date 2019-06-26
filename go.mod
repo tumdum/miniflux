@@ -9,6 +9,7 @@ require (
 	github.com/gorilla/mux v1.6.2
 	github.com/lib/pq v1.1.1
 	github.com/mattn/go-sqlite3 v1.10.0
+	github.com/tdewolff/minify/v2 v2.5.0 // indirect
 	golang.org/x/crypto v0.0.0-20181203042331-505ab145d0a9
 	golang.org/x/net v0.0.0-20190228165749-92fc7df08ae7
 	golang.org/x/oauth2 v0.0.0-20181203162652-d668ce993890

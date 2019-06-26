@@ -15,7 +15,7 @@ create table users (
     language text default 'en_US',
     timezone text default 'UTC',
     theme text default 'default',
-    last_login_at timestamp with time zone
+    last_login_at timestamp
 );
 
 create table sessions (
@@ -193,7 +193,7 @@ alter table users add column entry_direction text default 'asc';
 }
 
 var SqlMapChecksums = map[string]string{
-	"schema_version_1":  "9372e58dbbc9e968e9832f2fb54a33d9b109784feda26ca5b73549f51d6555af",
+	"schema_version_1":  "5e22217272815129ae1b609e8f16405f9148139306890cf69cc5893ba750a34a",
 	"schema_version_10": "7243abda43c62e5b4969002f98ff515b80ab8a03841e4fba929d839e9883d3c4",
 	"schema_version_11": "dc5bbc302e01e425b49c48ddcd8e29e3ab2bb8e73a6cd1858a6ba9fbec0b5243",
 	"schema_version_12": "a95abab6cdf64811fc744abd37457e2928939d999c5ef00d2bdd9398e16f32fb",
