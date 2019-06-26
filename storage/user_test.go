@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"reflect"
 	"testing"
+	"time"
 
 	_ "github.com/mattn/go-sqlite3"
 	"miniflux.app/database"
@@ -21,9 +22,8 @@ func noErr(t *testing.T, err error) {
 		t.Fatalf("Unexpected error: %v", err)
 	}
 }
-
-func MustCreateInMemoryStorage() *Storage {
-	db, err := sql.Open("sqlite3", ":memory:")
+func MustCreateStorage(path string) *Storage {
+	db, err := sql.Open("sqlite3", path)
 	if err != nil {
 		panic(err)
 	}
@@ -31,6 +31,10 @@ func MustCreateInMemoryStorage() *Storage {
 		panic(err)
 	}
 	return NewStorage(db)
+}
+
+func MustCreateInMemoryStorage() *Storage {
+	return MustCreateStorage(":memory:")
 }
 
 func TestNoUserExistsInEmptyStorage(t *testing.T) {
@@ -220,5 +224,48 @@ func TestHasPasswordForNotExisting(t *testing.T) {
 	if has, err := storage.HasPassword(1); has || err != nil {
 		noErr(t, err)
 		t.Fatalf("Not existing user shouldn't have a password")
+	}
+}
+
+func TestUserLanguage(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{Username: testUser}
+	noErr(t, storage.CreateUser(&user))
+	lang := storage.UserLanguage(user.ID)
+	if lang != "en_US" {
+		t.Fatalf("No language set means en_US")
+	}
+}
+
+func TestUpdateUser(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	noErr(t, storage.CreateUser(&user))
+	newLastLoginAt := time.Now()
+	newuser := model.User{
+		ID:                user.ID,
+		Username:          user.Username + "!",
+		Password:          user.Password + "!",
+		IsAdmin:           !user.IsAdmin,
+		Theme:             user.Theme + "!",
+		Language:          user.Language + "!",
+		Timezone:          user.Timezone + "!",
+		EntryDirection:    user.EntryDirection + "!",
+		KeyboardShortcuts: !user.KeyboardShortcuts,
+		LastLoginAt:       &newLastLoginAt,
+		Extra:             map[string]string{},
+	}
+	noErr(t, storage.UpdateUser(&newuser))
+	newuser.Password = ""     // not fetched
+	newuser.LastLoginAt = nil // Not updated
+	updated, err := storage.UserByID(user.ID)
+	noErr(t, err)
+	if !reflect.DeepEqual(newuser, *updated) {
+		t.Fatalf("\nExpected %#v\n     got %#v", newuser, *updated)
 	}
 }

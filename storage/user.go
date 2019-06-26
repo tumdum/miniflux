@@ -123,9 +123,7 @@ func (s *Storage) RemoveExtraField(userID int64, field string) error {
 }
 
 // UpdateUser updates a user.
-// NOT TESTED
 func (s *Storage) UpdateUser(user *model.User) error {
-	panic("Unimplemented")
 	if user.Password != "" {
 		hashedPassword, err := hashPassword(user.Password)
 		if err != nil {
@@ -198,9 +196,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
 // UserLanguage returns the language of the given user.
 // NOT TESTED
 func (s *Storage) UserLanguage(userID int64) (language string) {
-	panic("Unimplemented")
-	err := s.db.QueryRow(`SELECT language FROM users WHERE id = $1`, userID).Scan(&language)
-	if err != nil {
+	if s.db.QueryRow(`SELECT language FROM users WHERE id = $1`, userID).Scan(&language) != nil {
 		return "en_US"
 	}
 
@@ -254,7 +250,6 @@ func (s *Storage) UserByExtraField(field, value string) (*model.User, error) {
 	return s.fetchUser(query, field, value)
 }
 
-// NOT TESTED
 func (s *Storage) fetchUser(query string, args ...interface{}) (*model.User, error) {
 	var extra hstore.Hstore
 
