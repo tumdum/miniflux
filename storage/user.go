@@ -36,7 +36,8 @@ func (s *Storage) UserExists(username string) bool {
 
 // AnotherUserExists checks if another user exists with the given username.
 func (s *Storage) AnotherUserExists(userID int64, username string) bool {
-	panic("Unimplemented")
+	// unique constraint on username in table 'users' make this function today
+	// impossible to return true. Is this due to migrations?
 	var result int
 	s.db.QueryRow(`SELECT count(*) as c FROM users WHERE id != $1 AND username=LOWER($2)`, userID, username).Scan(&result)
 	return result >= 1
