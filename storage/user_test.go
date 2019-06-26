@@ -268,4 +268,54 @@ func TestUpdateUser(t *testing.T) {
 	if !reflect.DeepEqual(newuser, *updated) {
 		t.Fatalf("\nExpected %#v\n     got %#v", newuser, *updated)
 	}
+	newuser = model.User{
+		ID:                user.ID,
+		Username:          user.Username + "!!",
+		Password:          "",
+		IsAdmin:           !user.IsAdmin,
+		Theme:             user.Theme + "!!",
+		Language:          user.Language + "!!",
+		Timezone:          user.Timezone + "!!",
+		EntryDirection:    user.EntryDirection + "!!",
+		KeyboardShortcuts: !!user.KeyboardShortcuts,
+		LastLoginAt:       nil,
+		Extra:             map[string]string{},
+	}
+	noErr(t, storage.UpdateUser(&newuser))
+	newuser.Password = ""     // not fetched
+	newuser.LastLoginAt = nil // Not updated
+	updated, err = storage.UserByID(user.ID)
+	noErr(t, err)
+	if !reflect.DeepEqual(newuser, *updated) {
+		t.Fatalf("\nExpected %#v\n     got %#v", newuser, *updated)
+	}
+}
+
+func TestUpdateUserThatDoesntExist(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	newuser := model.User{
+		ID:                user.ID,
+		Username:          user.Username + "!",
+		Password:          user.Password + "!",
+		IsAdmin:           !user.IsAdmin,
+		Theme:             user.Theme + "!",
+		Language:          user.Language + "!",
+		Timezone:          user.Timezone + "!",
+		EntryDirection:    user.EntryDirection + "!",
+		KeyboardShortcuts: !user.KeyboardShortcuts,
+		LastLoginAt:       nil,
+		Extra:             map[string]string{},
+	}
+	if storage.UpdateUser(&newuser) == nil {
+		t.Fatalf("Updating not existing user didn't result in an error")
+	}
+	newuser.Password = ""
+	if storage.UpdateUser(&newuser) == nil {
+		t.Fatalf("Updating not existing user didn't result in an error")
+	}
 }

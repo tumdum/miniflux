@@ -124,6 +124,8 @@ func (s *Storage) RemoveExtraField(userID int64, field string) error {
 
 // UpdateUser updates a user.
 func (s *Storage) UpdateUser(user *model.User) error {
+	var err error
+	var res sql.Result
 	if user.Password != "" {
 		hashedPassword, err := hashPassword(user.Password)
 		if err != nil {
@@ -144,7 +146,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
 				id=$9
 		`
 
-		_, err = s.db.Exec(
+		res, err = s.db.Exec(
 			query,
 			user.Username,
 			hashedPassword,
@@ -156,9 +158,6 @@ func (s *Storage) UpdateUser(user *model.User) error {
 			user.KeyboardShortcuts,
 			user.ID,
 		)
-		if err != nil {
-			return fmt.Errorf("unable to update user: %v", err)
-		}
 	} else {
 		query := `
 			UPDATE users SET
@@ -173,7 +172,7 @@ func (s *Storage) UpdateUser(user *model.User) error {
 				id=$8
 		`
 
-		_, err := s.db.Exec(
+		res, err = s.db.Exec(
 			query,
 			user.Username,
 			user.IsAdmin,
@@ -185,11 +184,14 @@ func (s *Storage) UpdateUser(user *model.User) error {
 			user.ID,
 		)
 
-		if err != nil {
-			return fmt.Errorf("unable to update user: %v", err)
-		}
 	}
 
+	if err != nil {
+		return fmt.Errorf("unable to update user: %v", err)
+	}
+	if rows, _ := res.RowsAffected(); rows == 0 {
+		return fmt.Errorf("unable to update not existing user '%v' user: %v", user.Username, err)
+	}
 	return nil
 }
 
