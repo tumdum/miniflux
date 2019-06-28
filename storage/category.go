@@ -13,8 +13,8 @@ import (
 )
 
 // AnotherCategoryExists checks if another category exists with the same title.
+// NOTE: imposible due to constraint on categories table?
 func (s *Storage) AnotherCategoryExists(userID, categoryID int64, title string) bool {
-	panic("unimplemented")
 	var result int
 	query := `SELECT count(*) as c FROM categories WHERE user_id=$1 AND id != $2 AND title=$3`
 	s.db.QueryRow(query, userID, categoryID, title).Scan(&result)
@@ -45,9 +45,8 @@ func (s *Storage) Category(userID, categoryID int64) (*model.Category, error) {
 	return &category, nil
 }
 
-// FirstCategory returns the first category for the given user.
+// FirstCategory returns the first (in lexycographic order) category for the given user.
 func (s *Storage) FirstCategory(userID int64) (*model.Category, error) {
-	panic("unimplemented")
 	var category model.Category
 
 	query := `SELECT id, user_id, title FROM categories WHERE user_id=$1 ORDER BY title ASC LIMIT 1`

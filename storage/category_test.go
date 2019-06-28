@@ -157,3 +157,36 @@ func TestCategoriesWithFeedCount(t *testing.T) {
 		t.Fatalf("Expected '%v', got '%v'", expected, got)
 	}
 }
+
+func TestFirstCategory(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user1 := model.User{Username: testUser}
+	noErr(t, storage.CreateUser(&user1))
+	cat1 := model.Category{
+		Title:     "a",
+		UserID:    user1.ID,
+		FeedCount: 5,
+	}
+	cat2 := model.Category{
+		Title:     "b",
+		UserID:    user1.ID,
+		FeedCount: 335,
+	}
+	cat3 := model.Category{
+		Title:     "c",
+		UserID:    user1.ID,
+		FeedCount: 15,
+	}
+	noErr(t, storage.CreateCategory(&cat3))
+	noErr(t, storage.CreateCategory(&cat1))
+	noErr(t, storage.CreateCategory(&cat2))
+	cat, err := storage.CategoryByTitle(user1.ID, "All")
+	noErr(t, err)
+	noErr(t, storage.RemoveCategory(user1.ID, cat.ID))
+	first, err := storage.FirstCategory(user1.ID)
+	noErr(t, err)
+	if first.Title != "a" {
+		t.Fatal()
+	}
+}
