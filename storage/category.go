@@ -78,7 +78,6 @@ func (s *Storage) CategoryByTitle(userID int64, title string) (*model.Category, 
 
 // Categories returns all categories that belongs to the given user.
 func (s *Storage) Categories(userID int64) (model.Categories, error) {
-	panic("unimplemented")
 	query := `SELECT id, user_id, title FROM categories WHERE user_id=$1 ORDER BY title ASC`
 	rows, err := s.db.Query(query, userID)
 	if err != nil {
