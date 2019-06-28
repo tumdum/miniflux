@@ -1,13 +1,11 @@
 package storage
 
 import (
-	"database/sql"
 	"reflect"
 	"testing"
 	"time"
 
 	_ "github.com/mattn/go-sqlite3"
-	"miniflux.app/database"
 	"miniflux.app/model"
 )
 
@@ -15,27 +13,6 @@ const (
 	testUser     = "foo"
 	testPassword = "bar"
 )
-
-func noErr(t *testing.T, err error) {
-	t.Helper()
-	if err != nil {
-		t.Fatalf("Unexpected error: %v", err)
-	}
-}
-func MustCreateStorage(path string) *Storage {
-	db, err := sql.Open("sqlite3", path)
-	if err != nil {
-		panic(err)
-	}
-	if err := database.Migrate(db); err != nil {
-		panic(err)
-	}
-	return NewStorage(db)
-}
-
-func MustCreateInMemoryStorage() *Storage {
-	return MustCreateStorage(":memory:")
-}
 
 func TestNoUserExistsInEmptyStorage(t *testing.T) {
 	storage := MustCreateInMemoryStorage()

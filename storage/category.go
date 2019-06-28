@@ -23,7 +23,6 @@ func (s *Storage) AnotherCategoryExists(userID, categoryID int64, title string) 
 
 // CategoryExists checks if the given category exists into the database.
 func (s *Storage) CategoryExists(userID, categoryID int64) bool {
-	panic("unimplemented")
 	var result int
 	query := `SELECT count(*) as c FROM categories WHERE user_id=$1 AND id=$2`
 	s.db.QueryRow(query, userID, categoryID).Scan(&result)
@@ -64,7 +63,6 @@ func (s *Storage) FirstCategory(userID int64) (*model.Category, error) {
 
 // CategoryByTitle finds a category by the title.
 func (s *Storage) CategoryByTitle(userID int64, title string) (*model.Category, error) {
-	panic("unimplemented")
 	var category model.Category
 
 	query := `SELECT id, user_id, title FROM categories WHERE user_id=$1 AND title=$2`

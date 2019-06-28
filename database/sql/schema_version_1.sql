@@ -26,7 +26,7 @@ create table sessions (
 );
 
 create table categories (
-    id serial PRIMARY KEY,
+    id INTEGER PRIMARY KEY,
     user_id int not null,
     title text not null,
     unique (user_id, title),
