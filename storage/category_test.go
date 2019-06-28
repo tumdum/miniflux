@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"reflect"
 	"testing"
 
 	"miniflux.app/model"
@@ -88,5 +89,27 @@ func TestCreatingManyCategoriesShouldMakeThemVisible(t *testing.T) {
 		if !found {
 			t.Fatalf("Missing category '%v' for user '%v'", name, user1.Username)
 		}
+	}
+}
+
+func TestCategoryGetter(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	noErr(t, storage.CreateUser(&user))
+	cat := model.Category{
+		Title:     "cat",
+		UserID:    user.ID,
+		FeedCount: 0,
+	}
+	err := storage.CreateCategory(&cat)
+	noErr(t, err)
+	got, err := storage.Category(user.ID, cat.ID)
+	noErr(t, err)
+	if !reflect.DeepEqual(cat, *got) {
+		t.Fatalf("Expected '%v' got '%v'", &cat, got)
 	}
 }

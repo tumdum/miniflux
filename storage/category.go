@@ -31,9 +31,9 @@ func (s *Storage) CategoryExists(userID, categoryID int64) bool {
 
 // Category returns a category from the database.
 func (s *Storage) Category(userID, categoryID int64) (*model.Category, error) {
-	panic("unimplemented")
 	var category model.Category
 
+	// NOTE: why feedcount is not fetched?
 	query := `SELECT id, user_id, title FROM categories WHERE user_id=$1 AND id=$2`
 	err := s.db.QueryRow(query, userID, categoryID).Scan(&category.ID, &category.UserID, &category.Title)
 	if err == sql.ErrNoRows {

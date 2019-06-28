@@ -18,7 +18,7 @@ type Category struct {
 }
 
 func (c *Category) String() string {
-	return fmt.Sprintf("ID=%d, UserID=%d, Title=%s", c.ID, c.UserID, c.Title)
+	return fmt.Sprintf("ID=%d, UserID=%d, Title=%s, FeedCount=%d", c.ID, c.UserID, c.Title, c.FeedCount)
 }
 
 // ValidateCategoryCreation validates a category during the creation.
