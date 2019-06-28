@@ -190,3 +190,34 @@ func TestFirstCategory(t *testing.T) {
 		t.Fatal()
 	}
 }
+
+func TestUpdateCategory(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user1 := model.User{Username: testUser}
+	noErr(t, storage.CreateUser(&user1))
+	cat1 := model.Category{
+		Title:  "a",
+		UserID: user1.ID,
+	}
+	cat2 := model.Category{
+		Title:  "b",
+		UserID: user1.ID,
+	}
+	noErr(t, storage.CreateCategory(&cat1))
+	noErr(t, storage.CreateCategory(&cat2))
+	cat1.Title = "A"
+	cat2.Title = "B"
+	noErr(t, storage.UpdateCategory(&cat1))
+	noErr(t, storage.UpdateCategory(&cat2))
+	newcat1, err := storage.Category(cat1.UserID, cat1.ID)
+	noErr(t, err)
+	newcat2, err := storage.Category(cat2.UserID, cat2.ID)
+	noErr(t, err)
+	if !reflect.DeepEqual(cat1, *newcat1) {
+		t.Fatalf("Expected '%v', got '%v'", &cat1, newcat1)
+	}
+	if !reflect.DeepEqual(cat2, *newcat2) {
+		t.Fatalf("Expected '%v', got '%v'", &cat2, newcat2)
+	}
+}

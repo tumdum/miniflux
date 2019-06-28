@@ -149,7 +149,6 @@ func (s *Storage) CreateCategory(category *model.Category) error {
 
 // UpdateCategory updates an existing category. Ignores FeedCount field.
 func (s *Storage) UpdateCategory(category *model.Category) error {
-	panic("unimplemented")
 	query := `UPDATE categories SET title=$1 WHERE id=$2 AND user_id=$3`
 	_, err := s.db.Exec(
 		query,
