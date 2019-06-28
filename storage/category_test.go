@@ -18,10 +18,7 @@ func TestEmptyStorageHasNoCategories(t *testing.T) {
 func TestAfterUserIsCreatedAllCategoryIsAlsoCreatedForIt(t *testing.T) {
 	storage := MustCreateInMemoryStorage()
 	defer storage.Close()
-	user := model.User{
-		Username: testUser,
-		Password: testPassword,
-	}
+	user := model.User{Username: testUser}
 	noErr(t, storage.CreateUser(&user))
 	cat, err := storage.CategoryByTitle(user.ID, "All")
 	noErr(t, err)
@@ -33,14 +30,8 @@ func TestAfterUserIsCreatedAllCategoryIsAlsoCreatedForIt(t *testing.T) {
 func TestCreatingManyCategoriesShouldMakeThemVisible(t *testing.T) {
 	storage := MustCreateInMemoryStorage()
 	defer storage.Close()
-	user1 := model.User{
-		Username: testUser,
-		Password: testPassword,
-	}
-	user2 := model.User{
-		Username: testUser + "!",
-		Password: testPassword,
-	}
+	user1 := model.User{Username: testUser}
+	user2 := model.User{Username: testUser + "!"}
 	noErr(t, storage.CreateUser(&user1))
 	noErr(t, storage.CreateUser(&user2))
 	cat1 := model.Category{
@@ -95,10 +86,7 @@ func TestCreatingManyCategoriesShouldMakeThemVisible(t *testing.T) {
 func TestCategoryGetter(t *testing.T) {
 	storage := MustCreateInMemoryStorage()
 	defer storage.Close()
-	user := model.User{
-		Username: testUser,
-		Password: testPassword,
-	}
+	user := model.User{Username: testUser}
 	noErr(t, storage.CreateUser(&user))
 	cat := model.Category{
 		Title:     "cat",
@@ -117,15 +105,55 @@ func TestCategoryGetter(t *testing.T) {
 func TestRemoveCategory(t *testing.T) {
 	storage := MustCreateInMemoryStorage()
 	defer storage.Close()
-	user := model.User{
-		Username: testUser,
-		Password: testPassword,
-	}
+	user := model.User{Username: testUser}
 	noErr(t, storage.CreateUser(&user))
 	cat, err := storage.CategoryByTitle(user.ID, "All")
 	noErr(t, err)
 	noErr(t, storage.RemoveCategory(user.ID, cat.ID))
 	if storage.RemoveCategory(user.ID, cat.ID) == nil {
 		t.Fatalf("Removing not existing category didn't fail")
+	}
+}
+
+func TestCategoriesWithFeedCount(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user1 := model.User{Username: testUser}
+	noErr(t, storage.CreateUser(&user1))
+	cat1 := model.Category{
+		Title:     "cat1",
+		UserID:    user1.ID,
+		FeedCount: 5,
+	}
+	cat2 := model.Category{
+		Title:     "cat2",
+		UserID:    user1.ID,
+		FeedCount: 335,
+	}
+	cat3 := model.Category{
+		Title:     "cat3",
+		UserID:    user1.ID,
+		FeedCount: 15,
+	}
+	noErr(t, storage.CreateCategory(&cat1))
+	noErr(t, storage.CreateCategory(&cat2))
+	noErr(t, storage.CreateCategory(&cat3))
+	all, err := storage.CategoriesWithFeedCount(user1.ID)
+	noErr(t, err)
+	if len(all) != 4 {
+		t.Fatal()
+	}
+	expected := map[string]int{
+		"All":  0,
+		"cat1": 5,
+		"cat2": 335,
+		"cat3": 15,
+	}
+	got := map[string]int{}
+	for _, cat := range all {
+		got[cat.Title] = cat.FeedCount
+	}
+	if reflect.DeepEqual(expected, got) {
+		t.Fatalf("Expected '%v', got '%v'", expected, got)
 	}
 }

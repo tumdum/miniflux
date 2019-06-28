@@ -100,7 +100,6 @@ func (s *Storage) Categories(userID int64) (model.Categories, error) {
 
 // CategoriesWithFeedCount returns all categories with the number of feeds.
 func (s *Storage) CategoriesWithFeedCount(userID int64) (model.Categories, error) {
-	panic("unimplemented")
 	query := `SELECT
 		c.id, c.user_id, c.title,
 		(SELECT count(*) FROM feeds WHERE feeds.category_id=c.id) AS count
@@ -149,7 +148,7 @@ func (s *Storage) CreateCategory(category *model.Category) error {
 	return nil
 }
 
-// UpdateCategory updates an existing category.
+// UpdateCategory updates an existing category. Ignores FeedCount field.
 func (s *Storage) UpdateCategory(category *model.Category) error {
 	panic("unimplemented")
 	query := `UPDATE categories SET title=$1 WHERE id=$2 AND user_id=$3`
