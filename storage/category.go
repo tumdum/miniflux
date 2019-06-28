@@ -169,7 +169,6 @@ func (s *Storage) UpdateCategory(category *model.Category) error {
 
 // RemoveCategory deletes a category.
 func (s *Storage) RemoveCategory(userID, categoryID int64) error {
-	panic("unimplemented")
 	result, err := s.db.Exec("DELETE FROM categories WHERE id = $1 AND user_id = $2", categoryID, userID)
 	if err != nil {
 		return fmt.Errorf("Unable to remove this category: %v", err)

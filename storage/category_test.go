@@ -113,3 +113,19 @@ func TestCategoryGetter(t *testing.T) {
 		t.Fatalf("Expected '%v' got '%v'", &cat, got)
 	}
 }
+
+func TestRemoveCategory(t *testing.T) {
+	storage := MustCreateInMemoryStorage()
+	defer storage.Close()
+	user := model.User{
+		Username: testUser,
+		Password: testPassword,
+	}
+	noErr(t, storage.CreateUser(&user))
+	cat, err := storage.CategoryByTitle(user.ID, "All")
+	noErr(t, err)
+	noErr(t, storage.RemoveCategory(user.ID, cat.ID))
+	if storage.RemoveCategory(user.ID, cat.ID) == nil {
+		t.Fatalf("Removing not existing category didn't fail")
+	}
+}
